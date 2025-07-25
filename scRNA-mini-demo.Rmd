@@ -1,0 +1,100 @@
+---
+title: "PBMC 3k scRNA-seq Analysis"
+author: "Your Name"
+output: html_notebook
+---
+
+```{r setup, message=FALSE}
+# Install required packages (only once)
+if (!requireNamespace("BiocManager", quietly = TRUE)) install.packages("BiocManager")
+BiocManager::install("TENxPBMCData")
+BiocManager::install("Seurat")
+
+# Load libraries
+library(Seurat)
+library(TENxPBMCData)
+library(SingleCellExperiment)
+```
+
+## Load PBMC3k dataset from Bioconductor
+
+```{r load-data}
+
+
+# Load SingleCellExperiment object
+sce <- TENxPBMCData("pbmc3k")
+
+# Confirm the actual assay name (should be 'counts' or 'logcounts')
+assayNames(sce)
+
+# Extract count matrix manually
+counts_matrix <- assay(sce)
+
+# Convert HDF5-DelayedMatrix to regular in-memory matrix
+counts_matrix <- as.matrix(assay(sce))
+
+# Create Seurat object from count matrix
+pbmc <- CreateSeuratObject(counts = counts_matrix, project = "pbmc3k")
+pbmc
+
+```
+
+## Quality Control
+
+```{r qc}
+pbmc[["percent.mt"]] <- PercentageFeatureSet(pbmc, pattern = "^MT-")
+VlnPlot(pbmc, features = c("nFeature_RNA", "nCount_RNA", "percent.mt"))
+pbmc <- subset(pbmc, subset = nFeature_RNA > 200 & nFeature_RNA < 2500 & percent.mt < 5)
+
+```
+
+## Normalize & Variable Features
+
+```{r normalize}
+pbmc <- NormalizeData(pbmc)
+pbmc <- FindVariableFeatures(pbmc, selection.method = "vst", nfeatures = 2000)
+```
+
+## Scaling, PCA & Clustering
+
+```{r pca-cluster}
+pbmc <- ScaleData(pbmc)
+pbmc <- RunPCA(pbmc, features = VariableFeatures(pbmc))
+pbmc <- FindNeighbors(pbmc, dims = 1:10)
+pbmc <- FindClusters(pbmc, resolution = 0.5)
+pbmc <- RunUMAP(pbmc, dims = 1:10)
+DimPlot(pbmc, reduction = "umap", label = TRUE)
+```
+
+## Find Marker Genes
+
+```{r markers}
+pbmc.markers <- FindAllMarkers(pbmc, only.pos = TRUE, min.pct = 0.25, logfc.threshold = 0.25)
+head(pbmc.markers)
+```
+
+## Look at cluster3
+
+```{r cluster 3}
+# select cluster 3
+#cluster3_cells <- WhichCells(pbmc, idents = 3)
+#cluster3_expr <- GetAssayData(pbmc, slot = "data")[, cluster3_cells]
+
+cluster3.markers <- FindMarkers(pbmc, ident.1 = 3, min.pct = 0.25, verbose = FALSE)
+
+# Filter DE genes with strong significance and fold change
+sig_genes <- cluster3.markers[cluster3.markers$p_val_adj < 0.05 & 
+                              cluster3.markers$avg_log2FC > 0.5, ]
+
+# Filter with strong in-cluster signal (>0.5) and cluster specificity (<0.2)
+sig_genes <- sig_genes[sig_genes$pct.1 > 0.5 & sig_genes$pct.2 < 0.2, ]
+
+# Show top gene size
+dim(sig_genes)
+
+# View top genes
+sig_genes
+
+# save top genes
+write.table(rownames(sig_genes), './data/sig_genes.csv', quote=FALSE, row.names=FALSE, col.names=FALSE)
+```

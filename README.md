@@ -16,7 +16,7 @@ This notebook contains simplest tutorial with the PBMC 3k data set, process incl
     -  Step 2: Tokenize using 6-mer (for DNABERT) or character-based (for Nucleotide Transformer)
     - Step 3: Run through pretrained model to get embeddings
     - Step 4: Optional classification — enhancer/promoter inference
-        - download enhancer from [UCSC Table Browser](https://genome.ucsc.edu/cgi-bin/hgTables) 
+- download enhancer from [UCSC Table Browser](https://genome.ucsc.edu/cgi-bin/hgTables) 
 
 | Option            | Setting                                     |
 | ----------------- | ------------------------------------------- |
@@ -29,9 +29,9 @@ This notebook contains simplest tutorial with the PBMC 3k data set, process incl
 | **region**        | genome                                      |
 | **output format** | BED - browser extensible data               |
   
-        - download TSS from [FANTOM](https://fantom.gsc.riken.jp/5/datafiles/latest/extra/CAGE_peaks/), file:hg19.cage\_peak\_phase1and2combined\_coord.bed.gz 
-        - extract top 50 lines from each files as subsets to create references set for the demo purpose
-        - download reference genome hg19.fa.gz from [UCSC](https://hgdownload.soe.ucsc.edu/goldenPath/hg19/bigZips/)
-        - then, perform a zero-shot classification based on cosine similarity
+- download TSS from [FANTOM](https://fantom.gsc.riken.jp/5/datafiles/latest/extra/CAGE_peaks/), file:hg19.cage\_peak\_phase1and2combined\_coord.bed.gz 
+- extract top 50 lines from each files as subsets to create references set for the demo purpose
+- download reference genome hg19.fa.gz from [UCSC](https://hgdownload.soe.ucsc.edu/goldenPath/hg19/bigZips/)
+- then, perform a zero-shot classification based on cosine similarity
 
 ## another use case - TBC 

@@ -17,6 +17,7 @@ This notebook contains simplest tutorial with the PBMC 3k data set, process incl
     - Step 3: Run through pretrained model to get embeddings
     - Step 4: Optional classification — enhancer/promoter inference
         - download enhancer from [UCSC Table Browser](https://genome.ucsc.edu/cgi-bin/hgTables) 
+
 | Option            | Setting                                     |
 | ----------------- | ------------------------------------------- |
 | **clade**         | Mammal                                      |
